@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Organizer Panel — TanMUN</title>
+  <meta name="theme-color" content="#01030A">
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="../assets/css/admin.css">
+</head>
+<body class="admin">
+  <!-- Login -->
+  <section class="login" id="loginView" hidden>
+    <form class="login__card" id="loginForm">
+      <div class="login__logo">tan<b>MUN</b></div>
+      <h1>Organizer Panel</h1>
+      <p class="muted">Enter the organizer password to continue.</p>
+      <div class="field">
+        <label for="password">Password</label>
+        <input id="password" type="password" autocomplete="current-password" required autofocus>
+      </div>
+      <p class="form-error" id="loginError" hidden>Wrong password.</p>
+      <button class="btn btn--primary" type="submit" id="loginBtn">Enter</button>
+      <a href="../index.html" class="login__back">← Back to the website</a>
+    </form>
+  </section>
+
+  <!-- Dashboard -->
+  <div class="dash" id="dashView" hidden>
+    <header class="dash__top">
+      <div class="dash__brand">tan<b>MUN</b> <span>Organizer Panel</span></div>
+      <nav class="dash__tabs" role="tablist">
+        <button role="tab" data-tab="applications" class="is-active">Applications <span class="pill" id="appCount">0</span></button>
+        <button role="tab" data-tab="content">Website Content</button>
+      </nav>
+      <div class="dash__actions">
+        <span class="mode" id="modeBadge"></span>
+        <a class="btn btn--ghost btn--sm" href="../index.html" target="_blank" rel="noopener">View site ↗</a>
+        <button class="btn btn--ghost btn--sm" id="logoutBtn">Log out</button>
+      </div>
+    </header>
+
+    <main class="dash__main">
+      <!-- Applications -->
+      <section data-panel="applications">
+        <div class="stats" id="stats"></div>
+        <div class="toolbar">
+          <input type="search" id="search" placeholder="Search name, email, phone…" aria-label="Search">
+          <select id="filterCommittee" aria-label="Filter by committee"></select>
+          <select id="filterLevel" aria-label="Filter by level">
+            <option value="">All levels</option>
+            <option value="beginner">Beginner</option>
+            <option value="intermediate">Intermediate</option>
+            <option value="advanced">Advanced</option>
+            <option value="native">Native / Fluent</option>
+          </select>
+          <span class="toolbar__spacer"></span>
+          <button class="btn btn--ghost btn--sm" id="refreshBtn">↻ Refresh</button>
+          <button class="btn btn--primary btn--sm" id="exportBtn">Export to Excel</button>
+        </div>
+        <div class="apps" id="appsTable"></div>
+      </section>
+
+      <!-- Content editor -->
+      <section data-panel="content" hidden>
+        <div class="editor-bar">
+          <p class="muted">Changes appear on the public website as soon as you press <b>Save</b>. Every text has an English and a Turkish version.</p>
+          <div class="editor-bar__btns">
+            <button class="btn btn--ghost btn--sm" id="resetBtn" title="Reload the last saved version">Discard changes</button>
+            <button class="btn btn--primary btn--sm" id="saveBtn">Save changes</button>
+          </div>
+        </div>
+        <div id="editor"></div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="../assets/js/config.js"></script>
+  <script src="../assets/js/defaults.js"></script>
+  <script src="../assets/js/i18n.js"></script>
+  <script src="../assets/js/data.js"></script>
+  <script src="../assets/js/admin.js"></script>
+</body>
+</html>
