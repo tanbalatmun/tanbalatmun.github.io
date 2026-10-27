@@ -186,5 +186,7 @@
     },
     uploadGuide(file, committeeId) { return TM.data.uploadFile("study-guides", file, committeeId); },
     uploadLogo(file, sponsorName) { return TM.data.uploadFile("sponsor-logos", file, sponsorName); },
+    // Team photos share the public image bucket, in a "team-..." folder.
+    uploadPhoto(file, personName) { return TM.data.uploadFile("sponsor-logos", file, "team-" + personName); },
   };
 })();

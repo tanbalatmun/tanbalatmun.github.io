@@ -13,6 +13,38 @@
       .replace(/'/g, "&#39;");
   const clone = (o) => JSON.parse(JSON.stringify(o));
   const LEVEL_LABEL = { beginner: "Beginner", intermediate: "Intermediate", advanced: "Advanced", native: "Native / Fluent" };
+  const TEAM_GROUPS = [
+    ["secretariat", "Secretariat"],
+    ["academic", "Academic Team"],
+    ["boards", "Committee Board"],
+    ["organization", "Organization Team"],
+    ["advisors", "Advisors"],
+    ["custom", "Custom group…"],
+  ];
+  // Typing one of these roles picks the matching group automatically.
+  const ROLE_GROUP = {
+    "secretary-general": "secretariat",
+    "deputy secretary-general": "secretariat",
+    "under-secretary-general": "secretariat",
+    "academic assistant": "academic",
+    "head of academics": "academic",
+    "guest chair": "boards",
+    "chair": "boards",
+    "co-chair": "boards",
+    "vice-chair": "boards",
+    "admin": "organization",
+    "head of admin": "organization",
+    "pr": "organization",
+    "head of pr": "organization",
+    "logistics": "organization",
+    "design": "organization",
+    "faculty advisor": "advisors",
+  };
+  const ROLE_SUGGESTIONS = [
+    "Secretary-General", "Deputy Secretary-General", "Under-Secretary-General",
+    "Academic Assistant", "Guest Chair", "Chair", "Co-Chair",
+    "Head of Admin", "Admin", "Head of PR", "PR", "Logistics", "Design", "Faculty Advisor",
+  ];
   const countWords = (s) => (String(s || "").trim().match(/\S+/g) || []).length;
 
   let content = null;     // last saved content
@@ -303,11 +335,9 @@
       opts.hint ? `<small>${esc(opts.hint)}</small>` : ""
     }</label>`;
   }
+  // Text stored as { en: "..." }
   function bi(path, label, opts = {}) {
-    return `<div class="bi${opts.area ? " bi--area" : ""}">
-      ${text(path + ".en", label + " · EN", opts)}
-      ${text(path + ".tr", label + " · TR", opts)}
-    </div>`;
+    return `<div class="bi bi--single">${text(path + ".en", label, opts)}</div>`;
   }
   function select(path, label, options) {
     const v = getPath(draft, path);
@@ -390,26 +420,72 @@
                 Upload PDF<input type="file" accept="application/pdf" data-upload="${i}" ${TM.data.live ? "" : "disabled"} hidden>
               </label>
             </div>
-            <div class="esub">
-              <div class="esub__title">Committee board <small>(optional, shown on the committee page)</small></div>
-              ${(c.chairs || [])
-                .map(
-                  (ch, ci) => `
-                <div class="eslot">
-                  ${text(`committees.${i}.chairs.${ci}.name`, "Name")}
-                  ${text(`committees.${i}.chairs.${ci}.role.en`, "Role · EN", { placeholder: "Chair" })}
-                  ${text(`committees.${i}.chairs.${ci}.role.tr`, "Role · TR", { placeholder: "Başkan" })}
-                  <div class="eslot__btns">
-                    <button class="iconbtn iconbtn--danger" data-action="remove-chair" data-i="${i}" data-c="${ci}" title="Remove">✕</button>
-                  </div>
-                </div>`
-                )
-                .join("")}
-              <button class="btn btn--ghost btn--sm" data-action="add-chair" data-i="${i}">+ Add board member</button>
-            </div>
+            <p class="esub__note muted">Committee board (Guest Chair, Chair, Co-Chair): add them in the <b>Team</b> section below with group "Committee Board" and committee ${esc(c.code || "…")}.</p>
           </div>`
           )
           .join("") + `<button class="btn btn--ghost btn--sm" data-action="add-committee">+ Add committee</button>`
+      )
+    );
+
+    const committeeOpts = [["", "Choose committee"], ...draft.committees.map((c) => [c.code, c.code])];
+    html.push(
+      block(
+        "Team",
+        "Shown on the Team page. Board members (group Committee Board) also appear on their committee page. People without a name are hidden.",
+        `<datalist id="roleList">${ROLE_SUGGESTIONS.map((r) => `<option value="${esc(r)}">`).join("")}</datalist>` +
+        `<datalist id="customGroupList">${[
+          ...new Map(
+            draft.team
+              .filter((m) => m.group === "custom" && String(m.groupName || "").trim())
+              .map((m) => [m.groupName.trim().toLowerCase(), m.groupName.trim()])
+              .reverse() // keep the first spelling used
+          ).values(),
+        ]
+          .map((g) => `<option value="${esc(g)}">`)
+          .join("")}</datalist>` +
+        draft.team
+          .map((m, i) => {
+            const photo = /^https?:\/\//i.test(m.photoUrl || "") ? m.photoUrl : "";
+            const initials = String(m.name || "").trim().split(/\s+/).map((w) => w[0] || "").slice(0, 2).join("").toUpperCase();
+            return `
+          <div class="eitem emember">
+            <div class="emember__photo">${photo ? `<img src="${esc(photo)}" alt="">` : `<span>${esc(initials || "?")}</span>`}</div>
+            <div class="esponsor__fields">
+              <div class="eitem__head">
+                <strong>${esc(m.name || "New member")}${m.role ? ` <span class="muted">· ${esc(m.role)}</span>` : ""}</strong>
+                <div class="eitem__btns">
+                  <button class="iconbtn" data-action="move-member" data-i="${i}" data-dir="-1" ${i === 0 ? "disabled" : ""} title="Move up">↑</button>
+                  <button class="iconbtn" data-action="move-member" data-i="${i}" data-dir="1" ${i === draft.team.length - 1 ? "disabled" : ""} title="Move down">↓</button>
+                  <button class="iconbtn iconbtn--danger" data-action="remove-member" data-i="${i}" title="Remove">✕</button>
+                </div>
+              </div>
+              <div class="egrid">
+                ${text(`team.${i}.name`, "Full name")}
+                <label class="efield"><span>Role</span><input data-path="team.${i}.role" list="roleList" value="${esc(m.role || "")}" placeholder="e.g. Chair"></label>
+                ${select(`team.${i}.group`, "Group", TEAM_GROUPS)}
+                ${m.group === "boards" ? select(`team.${i}.committee`, "Committee", committeeOpts) : ""}
+                ${
+                  m.group === "custom"
+                    ? `<label class="efield"><span>Group name</span><input data-path="team.${i}.groupName" list="customGroupList" value="${esc(m.groupName || "")}" placeholder="e.g. Press Team"></label>`
+                    : ""
+                }
+              </div>
+              <div class="guide">
+                ${text(`team.${i}.photoUrl`, "Photo link (optional)", { placeholder: "https://... (or upload)", wide: true })}
+                <label class="btn btn--ghost btn--sm upload${TM.data.live ? "" : " is-disabled"}" title="${
+                  TM.data.live ? "Upload a photo" : "Uploading needs the live database. Paste a link instead."
+                }">
+                  Upload photo<input type="file" accept="image/png,image/jpeg,image/webp" data-upload-photo="${i}" ${TM.data.live ? "" : "disabled"} hidden>
+                </label>
+              </div>
+            </div>
+          </div>`;
+          })
+          .join("") +
+        `<div class="ebtns">
+           <button class="btn btn--ghost btn--sm" data-action="add-member">+ Add team member</button>
+           <button class="btn btn--ghost btn--sm" data-action="add-team-template" title="Adds empty SG, DG, USG, Academic Assistant, a Chair and Co-Chair for every committee, Admin and PR">+ Add standard roles</button>
+         </div>`
       )
     );
 
@@ -473,10 +549,9 @@
               ${d.items
                 .map(
                   (it, ii) => `
-                <div class="eslot">
+                <div class="eslot eslot--2">
                   ${text(`schedule.${di}.items.${ii}.time`, "Time", { placeholder: "09:00" })}
-                  ${text(`schedule.${di}.items.${ii}.title.en`, "Event · EN")}
-                  ${text(`schedule.${di}.items.${ii}.title.tr`, "Event · TR")}
+                  ${text(`schedule.${di}.items.${ii}.title.en`, "Event")}
                   <div class="eslot__btns">
                     <button class="iconbtn" data-action="move-item" data-d="${di}" data-i="${ii}" data-dir="-1" ${ii === 0 ? "disabled" : ""} title="Move up">↑</button>
                     <button class="iconbtn" data-action="move-item" data-d="${di}" data-i="${ii}" data-dir="1" ${ii === d.items.length - 1 ? "disabled" : ""} title="Move down">↓</button>
@@ -516,6 +591,19 @@
     if (!path) return;
     setPath(draft, path, e.target.type === "checkbox" ? e.target.checked : e.target.value);
     markDirty(true);
+    const roleMatch = path.match(/^team\.(\d+)\.role$/);
+    if (roleMatch) {
+      const g = ROLE_GROUP[e.target.value.trim().toLowerCase()];
+      const m = draft.team[Number(roleMatch[1])];
+      if (g && m.group !== g) {
+        m.group = g;
+        renderEditor();
+        const again = $(`[data-path="${path}"]`);
+        if (again) { again.focus(); again.setSelectionRange(again.value.length, again.value.length); }
+      }
+      return;
+    }
+    if (/^team\.\d+\.group$/.test(path)) { renderEditor(); return; }
     // live logo preview while typing a link
     if (/^sponsors\.\d+\.logoUrl$/.test(path)) {
       const box = e.target.closest(".esponsor").querySelector(".esponsor__logo");
@@ -525,6 +613,21 @@
   });
 
   $("#editor").addEventListener("change", async (e) => {
+    const pi = e.target.dataset.uploadPhoto;
+    if (pi !== undefined && e.target.files[0]) {
+      const file = e.target.files[0];
+      if (file.size > 5 * 1024 * 1024) return toast("Photo is larger than 5 MB", "error");
+      toast("Uploading " + file.name + "...");
+      try {
+        draft.team[pi].photoUrl = await TM.data.uploadPhoto(file, draft.team[pi].name || "member");
+        markDirty(true);
+        renderEditor();
+        toast("Uploaded. Press Save to publish", "success");
+      } catch (err) {
+        toast("Upload failed: " + (err.message || err), "error");
+      }
+      return;
+    }
     const li = e.target.dataset.uploadLogo;
     if (li !== undefined && e.target.files[0]) {
       const file = e.target.files[0];
@@ -563,11 +666,11 @@
     const d = Number(b.dataset.d);
     const dir = Number(b.dataset.dir);
     const swap = (arr, a, c) => { [arr[a], arr[c]] = [arr[c], arr[a]]; };
-    const blank = () => ({ en: "", tr: "" });
+    const blank = () => ({ en: "" });
 
     switch (b.dataset.action) {
       case "add-committee":
-        draft.committees.push({ id: "", code: "", name: blank(), agenda: blank(), description: blank(), level: blank(), room: "TBA", guideUrl: "", chairs: [] });
+        draft.committees.push({ id: "", code: "", name: blank(), agenda: blank(), description: blank(), level: blank(), room: "TBA", guideUrl: "" });
         break;
       case "remove-committee":
         if (!confirm(`Remove ${draft.committees[i].code || "this committee"}?`)) return;
@@ -576,12 +679,30 @@
       case "move-committee":
         swap(draft.committees, i, i + dir);
         break;
-      case "add-chair":
-        (draft.committees[i].chairs = draft.committees[i].chairs || []).push({ name: "", role: blank() });
+      case "add-member":
+        draft.team.push({ name: "", role: "", group: "organization", committee: "", photoUrl: "" });
         break;
-      case "remove-chair":
-        draft.committees[i].chairs.splice(Number(b.dataset.c), 1);
+      case "remove-member":
+        if (!confirm(`Remove ${draft.team[i].name || "this team member"}?`)) return;
+        draft.team.splice(i, 1);
         break;
+      case "move-member":
+        swap(draft.team, i, i + dir);
+        break;
+      case "add-team-template": {
+        const p = (role, group, committee = "") => ({ name: "", role, group, committee, photoUrl: "" });
+        draft.team.push(
+          p("Secretary-General", "secretariat"),
+          p("Deputy Secretary-General", "secretariat"),
+          p("Under-Secretary-General", "secretariat"),
+          p("Academic Assistant", "academic"),
+          ...draft.committees.flatMap((c) => [p("Chair", "boards", c.code), p("Co-Chair", "boards", c.code)]),
+          p("Head of Admin", "organization"),
+          p("Head of PR", "organization")
+        );
+        toast("Added empty roles. Fill in the names, then Save.");
+        break;
+      }
       case "add-sponsor":
         draft.sponsors.push({ name: "", tier: "gold", website: "", logoUrl: "" });
         break;
@@ -593,7 +714,7 @@
         swap(draft.sponsors, i, i + dir);
         break;
       case "add-day":
-        draft.schedule.push({ label: { en: `Day ${draft.schedule.length + 1}`, tr: `${draft.schedule.length + 1}. Gün` }, date: blank(), items: [] });
+        draft.schedule.push({ label: { en: `Day ${draft.schedule.length + 1}` }, date: blank(), items: [] });
         break;
       case "remove-day":
         if (!confirm("Remove this day and all its events?")) return;
@@ -624,6 +745,10 @@
     if (codes.some((c) => !c)) return "Every committee needs a short name.";
     if (new Set(codes.map((c) => c.toUpperCase())).size !== codes.length) return "Two committees have the same short name.";
     if (draft.sponsors.some((sp) => !String(sp.name || "").trim())) return "Every sponsor needs a name.";
+    const noCommittee = draft.team.find((m) => m.name && m.group === "boards" && !m.committee);
+    if (noCommittee) return `Choose a committee for ${noCommittee.name} (Committee Board).`;
+    const noGroupName = draft.team.find((m) => m.name && m.group === "custom" && !String(m.groupName || "").trim());
+    if (noGroupName) return `Type a group name for ${noGroupName.name} (Custom group).`;
     if (draft.conference.startDate && isNaN(new Date(draft.conference.startDate))) return "The countdown date is not valid.";
     return null;
   }

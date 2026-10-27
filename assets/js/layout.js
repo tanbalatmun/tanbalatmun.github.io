@@ -41,10 +41,34 @@
     { href: "index.html", key: "nav.home", id: "home" },
     { href: "committees.html", key: "nav.committees", id: "committees" },
     { href: "details.html", key: "nav.details", id: "details" },
+    { href: "team.html", key: "nav.team", id: "team" },
     { href: "index.html#sponsors", key: "nav.sponsors", id: "sponsors" },
   ];
 
   TM.committeeUrl = (cm) => `committee.html?c=${encodeURIComponent(cm.id)}`;
+
+  // Board roles in display order; anything else sorts after them.
+  const BOARD_ORDER = ["guest chair", "chair", "co-chair", "vice-chair", "rapporteur"];
+  const rank = (role) => {
+    const i = BOARD_ORDER.indexOf(String(role || "").trim().toLowerCase());
+    return i === -1 ? BOARD_ORDER.length : i;
+  };
+
+  // Members of one committee's board, in role order.
+  TM.teamFor = function (content, code) {
+    return (content.team || [])
+      .filter((m) => m.name && m.group === "boards" && m.committee === code)
+      .sort((a, b) => rank(a.role) - rank(b.role));
+  };
+  TM.boardRank = rank;
+
+  // Round photo, or initials if there's no photo.
+  TM.avatarHTML = function (m, cls) {
+    const photo = TM.safeUrl(m.photoUrl);
+    if (photo) return `<div class="${cls} has-photo"><img src="${TM.esc(photo)}" alt="" loading="lazy"></div>`;
+    const initials = String(m.name || "?").trim().split(/\s+/).map((w) => w[0]).slice(0, 2).join("").toUpperCase();
+    return `<div class="${cls}">${TM.esc(initials)}</div>`;
+  };
 
   const ICONS = {
     instagram:
@@ -73,15 +97,11 @@
                  </div>`
               : `<a href="${p.href}" class="nav__link${page === p.id ? " is-active" : ""}" data-i18n="${p.key}"></a>`
           ).join("")}
-          <div class="lang" role="group" aria-label="Language">
-            <button type="button" data-lang="en">EN</button>
-            <button type="button" data-lang="tr">TR</button>
-          </div>
           <a href="apply.html" class="btn btn--primary btn--sm${page === "apply" ? " is-active" : ""}" data-i18n="nav.apply"></a>
         </nav>
       </header>`;
 
-    // Committees dropdown: one entry per committee (re-drawn on language change)
+    // Committees dropdown: one entry per committee
     const sub = el.querySelector("#navSub");
     const current = new URLSearchParams(location.search).get("c");
     const drawSub = () => {
@@ -117,13 +137,6 @@
       toggle.classList.toggle("is-open", open);
       toggle.setAttribute("aria-expanded", String(open));
     });
-    el.querySelectorAll("[data-lang]").forEach((b) =>
-      b.addEventListener("click", () => TM.i18n.setLang(b.dataset.lang))
-    );
-    const syncLang = () =>
-      el.querySelectorAll("[data-lang]").forEach((b) => b.classList.toggle("is-active", b.dataset.lang === TM.i18n.lang));
-    syncLang();
-    TM.i18n.onChange(syncLang);
 
     const nav = el.querySelector("#nav");
     const onScroll = () => nav.classList.toggle("is-scrolled", window.scrollY > 20);

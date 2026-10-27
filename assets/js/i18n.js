@@ -1,7 +1,7 @@
 /*
- * Interface text (buttons, labels, headings) in English and Turkish.
+ * Interface text (buttons, labels, headings).
  * Conference content (agendas, schedule…) lives in the database / defaults.js.
- * Mark an element with data-i18n="key" to have its text translated automatically.
+ * Mark an element with data-i18n="key" to fill in its text automatically.
  */
 (function () {
   const STRINGS = {
@@ -11,6 +11,16 @@
       "nav.details": "Details",
       "nav.apply": "Apply Now",
       "nav.sponsors": "Sponsors",
+      "nav.team": "Team",
+      "team.eyebrow": "Our team",
+      "team.title": "Meet the team",
+      "team.lead": "The students and advisors working behind the scenes to make TanMUN happen.",
+      "team.empty": "Our team will be announced soon.",
+      "team.group.secretariat": "Secretariat",
+      "team.group.academic": "Academic Team",
+      "team.group.boards": "Committee Boards",
+      "team.group.organization": "Organization Team",
+      "team.group.advisors": "Advisors",
       "nav.allCommittees": "All committees",
       "sponsors.eyebrow": "Our sponsors",
       "sponsors.title": "Made possible by",
@@ -103,129 +113,23 @@
       "footer.organizers": "Organizers",
       "demo.banner": "Demo mode — data is saved only in this browser.",
     },
-    tr: {
-      "nav.home": "Ana Sayfa",
-      "nav.committees": "Komiteler",
-      "nav.details": "Detaylar",
-      "nav.apply": "Başvur",
-      "nav.sponsors": "Sponsorlar",
-      "nav.allCommittees": "Tüm komiteler",
-      "sponsors.eyebrow": "Sponsorlarımız",
-      "sponsors.title": "Katkılarıyla",
-      "sponsors.empty": "Sponsorlarımız yakında açıklanacak.",
-      "sponsors.tier.main": "Ana sponsor",
-      "sponsors.tier.gold": "Altın sponsorlar",
-      "sponsors.tier.silver": "Gümüş sponsorlar",
-      "sponsors.tier.partner": "Destekçiler",
-      "sponsors.visit": "Web sitesini ziyaret et",
-      "committee.back": "Tüm komiteler",
-      "committee.chairs": "Komite divanı",
-      "committee.apply": "Bu komiteye başvur",
-      "committee.prev": "Önceki",
-      "committee.next": "Sonraki",
-      "committee.notFound": "Bu komite bulunamadı.",
-      "committees.open": "Komiteyi incele",
-      "hero.countdown.days": "Gün",
-      "hero.countdown.hours": "Saat",
-      "hero.countdown.minutes": "Dakika",
-      "hero.countdown.seconds": "Saniye",
-      "hero.started": "Konferans başladı — bol şans delegeler!",
-      "hero.explore": "Komiteleri keşfet",
-      "home.facts.days": "Gün boyunca münazara",
-      "home.facts.committees": "Komite",
-      "home.facts.edition": "Dönem",
-      "home.letter.eyebrow": "Hoş geldiniz mektubu",
-      "home.letter.title": "Sekretarya'dan bir mesaj",
-      "home.committees.eyebrow": "Komiteler",
-      "home.committees.title": "Salonunu seç",
-      "home.committees.all": "Tüm komiteler",
-      "home.committees.more": "Detaylı bilgi",
-      "home.cta.title": "Koltuğun seni bekliyor.",
-      "home.cta.text": "Başvurular okulumuzun tüm öğrencilerine açık. Sadece birkaç dakikanı alır.",
-      "home.cta.closed": "Başvurular şu anda kapalı. Güncellemeler için bizi takip edin.",
-      "committees.eyebrow": "Komiteler",
-      "committees.title": "Komiteler ve Gündemler",
-      "committees.lead": "Üç komite, üç farklı meydan okuma. Gündemleri oku, çalışma kılavuzlarını indir ve iz bırakmak istediğin salonu seç.",
-      "committees.agenda": "Gündem maddesi",
-      "committees.room": "Sınıf",
-      "committees.level": "Seviye",
-      "committees.guide": "Çalışma kılavuzunu indir",
-      "committees.guideSoon": "Çalışma kılavuzu yakında",
-      "details.eyebrow": "Konferans detayları",
-      "details.title": "Nerede & ne zaman",
-      "details.date": "Tarih",
-      "details.venue": "Yer",
-      "details.committees": "Komiteler",
-      "details.rooms.title": "Komite sınıfları",
-      "details.rooms.committee": "Komite",
-      "details.rooms.room": "Sınıf",
-      "details.rooms.note": "Sınıflar dönemler arasında değişebilir — konferanstan önce bu sayfayı mutlaka kontrol edin.",
-      "details.schedule.title": "Program",
-      "details.schedule.note": "Kesin saatler yakında açıklanacak.",
-      "apply.eyebrow": "Delege başvurusu",
-      "apply.title": "TanMUN'a Başvur",
-      "apply.lead": "Aşağıdaki formu doldur. Komite tercihlerin ve motivasyon mektubun, parlayacağın komiteye yerleşmene yardımcı olur.",
-      "apply.closed.title": "Başvurular kapalı",
-      "apply.closed.text": "Bu konferans için başvurular şu anda açık değil. Duyurular için Instagram hesabımızı takip edin.",
-      "apply.section.you": "Hakkında",
-      "apply.section.committees": "Komite tercihleri",
-      "apply.section.letter": "Motivasyon mektubu",
-      "apply.fullName": "Ad soyad",
-      "apply.phone": "Telefon numarası",
-      "apply.email": "E-posta",
-      "apply.level": "İngilizce seviyesi",
-      "apply.level.placeholder": "Seviyeni seç",
-      "apply.level.beginner": "Başlangıç",
-      "apply.level.intermediate": "Orta",
-      "apply.level.advanced": "İleri",
-      "apply.level.native": "Anadil / Akıcı",
-      "apply.choice1": "1. tercih",
-      "apply.choice2": "2. tercih",
-      "apply.choice3": "3. tercih",
-      "apply.choice.placeholder": "Bir komite seç",
-      "apply.motivation": "TanMUN'a neden katılmak istiyorsun ve neden bu komiteler?",
-      "apply.words": "kelime",
-      "apply.wordsHint": "75 ile 200 kelime arası",
-      "apply.submit": "Başvuruyu gönder",
-      "apply.sending": "Gönderiliyor…",
-      "apply.success.title": "Başvurun alındı!",
-      "apply.success.text": "TanMUN'a başvurduğun için teşekkürler. Sekretarya başvurunu inceleyip seninle e-posta veya telefon yoluyla iletişime geçecek.",
-      "apply.success.again": "Yeni başvuru gönder",
-      "apply.error.required": "Lütfen bu alanı doldur.",
-      "apply.error.email": "Lütfen geçerli bir e-posta adresi gir.",
-      "apply.error.phone": "Lütfen geçerli bir telefon numarası gir.",
-      "apply.error.words": "Mektubun 75 ile 200 kelime arasında olmalı.",
-      "apply.error.choices": "Lütfen her tercih için farklı bir komite seç.",
-      "apply.error.submit": "Başvurun gönderilirken bir sorun oluştu. Lütfen tekrar dene.",
-      "footer.rights": "Tüm hakları saklıdır.",
-      "footer.organizers": "Organizatörler",
-      "demo.banner": "Demo modu — veriler yalnızca bu tarayıcıda saklanır.",
-    },
   };
 
-  const KEY = "tm_lang";
-  let lang = "en";
-  try { lang = localStorage.getItem(KEY) || "en"; } catch (e) {}
-  if (lang !== "en" && lang !== "tr") lang = "en";
+  // The site is English-only. Content objects may still carry old { en, tr }
+  // pairs from the database; pick() always uses the English one.
+  const lang = "en";
 
   const listeners = [];
 
   window.TM = window.TM || {};
   TM.i18n = {
     get lang() { return lang; },
-    t(key) { return (STRINGS[lang] && STRINGS[lang][key]) || STRINGS.en[key] || key; },
-    // Pick the right language out of a { en, tr } object.
+    t(key) { return STRINGS.en[key] || key; },
+    // Text fields are stored as { en: "..." } objects (or plain strings).
     pick(obj) {
       if (obj == null) return "";
       if (typeof obj === "string") return obj;
-      return obj[lang] || obj.en || "";
-    },
-    setLang(next) {
-      if (next !== "en" && next !== "tr") return;
-      lang = next;
-      try { localStorage.setItem(KEY, next); } catch (e) {}
-      TM.i18n.apply();
-      listeners.forEach((fn) => fn(lang));
+      return obj.en || "";
     },
     onChange(fn) { listeners.push(fn); },
     apply(root) {

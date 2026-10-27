@@ -26,7 +26,8 @@
     const prev = list[(idx - 1 + list.length) % list.length];
     const next = list[(idx + 1) % list.length];
     const guide = TM.safeUrl(cm.guideUrl);
-    const chairs = (cm.chairs || []).filter((ch) => ch.name);
+    // Board members are managed in the Team section (group "boards", committee = this code).
+    const chairs = TM.teamFor(content, cm.code);
     document.title = `${cm.code} — ${content.conference.name}'${String(content.conference.year).slice(-2)}`;
 
     root.innerHTML = `
@@ -60,7 +61,7 @@
                       ${chairs
                         .map(
                           (ch) => `<div class="chair">
-                            <div class="chair__avatar">${esc(ch.name.trim().split(/\s+/).map((w) => w[0]).slice(0, 2).join("").toUpperCase())}</div>
+                            ${TM.avatarHTML(ch, "chair__avatar")}
                             <div><div class="chair__name">${esc(ch.name)}</div><div class="chair__role">${pick(ch.role)}</div></div>
                           </div>`
                         )
