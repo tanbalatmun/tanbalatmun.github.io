@@ -30,8 +30,10 @@
     const chairs = TM.teamFor(content, cm.code);
     document.title = `${cm.code} — ${content.conference.name}'${String(content.conference.year).slice(-2)}`;
 
+    const bg = TM.bgStyle(cm.bgUrl);
     root.innerHTML = `
-      <section class="chero">
+      ${bg ? `<div class="cbg" aria-hidden="true"${bg}></div>` : ""}
+      <section class="chero${bg ? " chero--photo" : ""}">
         <div class="wrap">
           <a class="chero__back" href="committees.html">← ${t("committee.back")}</a>
           <div class="chero__grid">

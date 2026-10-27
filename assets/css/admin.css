@@ -305,3 +305,17 @@ html:has(body.admin) { scroll-behavior: auto; }
 }
 .emember__photo img { width: 100%; height: 100%; object-fit: cover; }
 @media (max-width: 700px) { .emember { grid-template-columns: 1fr; } }
+
+/* committee background image field */
+.ebg { display: grid; grid-template-columns: 200px 1fr; gap: 14px; align-items: end; margin-top: 12px; }
+.ebg__preview {
+  height: 84px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: rgba(0, 0, 5, 0.5) center / cover no-repeat;
+  display: grid;
+  place-items: center;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+@media (max-width: 700px) { .ebg { grid-template-columns: 1fr; } }

@@ -10,7 +10,8 @@
         ${content.committees
           .map(
             (cm, i) => `
-          <a class="ctile reveal reveal-d${(i % 3) + 1}" href="${esc(TM.committeeUrl(cm))}">
+          <a class="ctile${TM.safeUrl(cm.bgUrl) ? " ctile--photo" : ""} reveal reveal-d${(i % 3) + 1}" href="${esc(TM.committeeUrl(cm))}">
+            ${TM.safeUrl(cm.bgUrl) ? `<span class="ctile__bg" aria-hidden="true"${TM.bgStyle(cm.bgUrl)}></span>` : ""}
             <div class="ctile__badge">${esc(cm.code)}</div>
             <div class="ctile__body">
               <div class="ctile__name">${pick(cm.name)}</div>

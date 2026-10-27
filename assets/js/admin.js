@@ -45,6 +45,8 @@
     "Academic Assistant", "Guest Chair", "Chair", "Co-Chair",
     "Head of Admin", "Admin", "Head of PR", "PR", "Logistics", "Design", "Faculty Advisor",
   ];
+  // CSS url() value; quotes/backslashes/newlines are percent-encoded so a link can't break out.
+  const cssUrl = (u) => `url("${String(u).trim().replace(/["\\\n\r]/g, (ch) => encodeURIComponent(ch))}")`;
   const countWords = (s) => (String(s || "").trim().match(/\S+/g) || []).length;
 
   let content = null;     // last saved content
@@ -420,6 +422,19 @@
                 Upload PDF<input type="file" accept="application/pdf" data-upload="${i}" ${TM.data.live ? "" : "disabled"} hidden>
               </label>
             </div>
+            <div class="ebg">
+              <div class="ebg__preview" data-bg-preview="${i}"${
+                /^https?:\/\//i.test(c.bgUrl || "") ? ` style="background-image:${esc(cssUrl(c.bgUrl))}"` : ""
+              }><span>${c.bgUrl ? "" : "No background"}</span></div>
+              <div class="guide">
+                ${text(`committees.${i}.bgUrl`, "Background image (committee card + top of its page)", { placeholder: "https://... (or upload). Wide photos work best.", wide: true })}
+                <label class="btn btn--ghost btn--sm upload${TM.data.live ? "" : " is-disabled"}" title="${
+                  TM.data.live ? "Upload a background image" : "Uploading needs the live database. Paste a link instead."
+                }">
+                  Upload image<input type="file" accept="image/png,image/jpeg,image/webp" data-upload-bg="${i}" ${TM.data.live ? "" : "disabled"} hidden>
+                </label>
+              </div>
+            </div>
             <p class="esub__note muted">Committee board (Guest Chair, Chair, Co-Chair): add them in the <b>Team</b> section below with group "Committee Board" and committee ${esc(c.code || "…")}.</p>
           </div>`
           )
@@ -604,6 +619,16 @@
       return;
     }
     if (/^team\.\d+\.group$/.test(path)) { renderEditor(); return; }
+    // live background preview while typing a link
+    const bgMatch = path.match(/^committees\.(\d+)\.bgUrl$/);
+    if (bgMatch) {
+      const box = $(`[data-bg-preview="${bgMatch[1]}"]`);
+      const v = e.target.value.trim();
+      const ok = /^https?:\/\//i.test(v);
+      box.style.backgroundImage = ok ? cssUrl(v) : "";
+      box.querySelector("span").textContent = ok ? "" : "No background";
+      return;
+    }
     // live logo preview while typing a link
     if (/^sponsors\.\d+\.logoUrl$/.test(path)) {
       const box = e.target.closest(".esponsor").querySelector(".esponsor__logo");
@@ -613,6 +638,21 @@
   });
 
   $("#editor").addEventListener("change", async (e) => {
+    const bgi = e.target.dataset.uploadBg;
+    if (bgi !== undefined && e.target.files[0]) {
+      const file = e.target.files[0];
+      if (file.size > 8 * 1024 * 1024) return toast("Image is larger than 8 MB", "error");
+      toast("Uploading " + file.name + "...");
+      try {
+        draft.committees[bgi].bgUrl = await TM.data.uploadFile("sponsor-logos", file, "committee-" + (draft.committees[bgi].code || "bg"));
+        markDirty(true);
+        renderEditor();
+        toast("Uploaded. Press Save to publish", "success");
+      } catch (err) {
+        toast("Upload failed: " + (err.message || err), "error");
+      }
+      return;
+    }
     const pi = e.target.dataset.uploadPhoto;
     if (pi !== undefined && e.target.files[0]) {
       const file = e.target.files[0];

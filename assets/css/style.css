@@ -1115,3 +1115,62 @@ a.sponsor:hover { transform: translateY(-3px); box-shadow: 0 16px 40px -14px rgb
   .member--featured { width: 100%; }
   .members--board { justify-content: center; }
 }
+
+/* ==========================================================
+   Committee background photos
+   ========================================================== */
+/* Committees overview: photo fills the whole card, darkened toward the text */
+.ctile__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.6s ease;
+}
+.ctile__bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(1, 3, 10, 0.55) 0%, rgba(1, 3, 10, 0.82) 40%, rgba(1, 3, 10, 0.7) 100%),
+    linear-gradient(180deg, rgba(1, 16, 85, 0.25), rgba(0, 0, 5, 0.35));
+}
+.ctile--photo > *:not(.ctile__bg) { position: relative; z-index: 1; }
+.ctile--photo { border-color: rgba(122, 162, 255, 0.28); }
+.ctile--photo:hover .ctile__bg { transform: scale(1.04); }
+.ctile--photo .ctile__agenda { color: #c9d4f2; }
+.ctile--photo .ctile__name,
+.ctile--photo .ctile__meta { text-shadow: 0 1px 12px rgba(0, 0, 5, 0.8); }
+
+/* Single committee page: photo behind the top of the page (incl. the menu), fading out */
+#committeeRoot { position: relative; }
+#committeeRoot > section { position: relative; z-index: 1; }
+.cbg {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(-1 * var(--nav-h));
+  height: calc(100% + var(--nav-h));
+  max-height: 980px;
+  z-index: 0;
+  background-size: cover;
+  background-position: center 30%;
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 45%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 0%, #000 45%, transparent 100%);
+}
+.cbg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(1, 3, 10, 0.55) 0%, rgba(1, 3, 10, 0.45) 35%, rgba(1, 3, 10, 0.85) 100%),
+    linear-gradient(90deg, rgba(1, 3, 10, 0.55), rgba(1, 3, 10, 0.15) 60%, rgba(1, 3, 10, 0.4));
+}
+.chero--photo { background: none; }
+.chero--photo h1,
+.chero--photo .lead,
+.chero--photo .eyebrow,
+.chero--photo .chero__back { text-shadow: 0 2px 18px rgba(0, 0, 5, 0.85); }
+.chero--photo .chero__back { color: #d6e2ff; }
+.chero--photo .lead { color: #d6e2ff; }

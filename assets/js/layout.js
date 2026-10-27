@@ -252,6 +252,15 @@
    */
   TM.safeUrl = (u) => (/^https?:\/\//i.test(String(u || "").trim()) ? String(u).trim() : "");
 
+  // style="background-image: …" for a committee background, or "" if there is none.
+  // Quotes/backslashes/newlines are percent-encoded so a link can't break out of url().
+  TM.bgStyle = (u) => {
+    const url = TM.safeUrl(u);
+    if (!url) return "";
+    const css = `url("${url.replace(/["\\\n\r]/g, (ch) => encodeURIComponent(ch))}")`;
+    return ` style="background-image:${TM.esc(css)}"`;
+  };
+
   // Pass `onLangChange` to update the page yourself instead of a full re-render
   // (used by the application form so typed answers aren't lost).
   TM.boot = async function (render, onLangChange) {
