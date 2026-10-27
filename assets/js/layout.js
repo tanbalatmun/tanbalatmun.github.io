@@ -48,10 +48,14 @@
   TM.committeeUrl = (cm) => `committee.html?c=${encodeURIComponent(cm.id)}`;
 
   // Board roles in display order; anything else sorts after them.
-  const BOARD_ORDER = ["guest chair", "chair", "co-chair", "vice-chair", "rapporteur"];
+  // Matched on how the role starts, so "Under-Secretary-General · DSG" still counts as a USG.
+  // Unknown roles go between the board and the crisis team.
+  const BOARD_ORDER = ["under-secretary-general", "guest chair", "chair", "co-chair", "vice-chair", "rapporteur", "", "crisis"];
   const rank = (role) => {
-    const i = BOARD_ORDER.indexOf(String(role || "").trim().toLowerCase());
-    return i === -1 ? BOARD_ORDER.length : i;
+    const r = String(role || "").trim().toLowerCase();
+    if (r.startsWith("crisis")) return BOARD_ORDER.indexOf("crisis");
+    const i = BOARD_ORDER.findIndex((o) => o && (r === o || r.startsWith(o + " ") || r.startsWith(o + " ·")));
+    return i === -1 ? BOARD_ORDER.indexOf("") : i;
   };
 
   // Members of one committee's board, in role order.
