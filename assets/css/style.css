@@ -27,7 +27,7 @@
   --radius: 18px;
   --radius-sm: 10px;
   --wrap: 1120px;
-  --nav-h: 72px;
+  --nav-h: 84px;
 }
 
 *,
@@ -1174,3 +1174,13 @@ a.sponsor:hover { transform: translateY(-3px); box-shadow: 0 16px 40px -14px rgb
 .chero--photo .chero__back { text-shadow: 0 2px 18px rgba(0, 0, 5, 0.85); }
 .chero--photo .chero__back { color: #d6e2ff; }
 .chero--photo .lead { color: #d6e2ff; }
+
+/* ==========================================================
+   Header logo (official TanMUN'27 mark)
+   ========================================================== */
+.nav__brand { display: inline-flex; align-items: center; line-height: 0; padding: 4px 0; }
+.brand-mark { height: 66px; width: auto; display: block; overflow: visible; transition: transform 0.25s ease; }
+.brand-mark .fg { fill: #fff; }
+.brand-mark .pink { fill: #ec1c78; }
+.nav__brand:hover .brand-mark { transform: scale(1.04); }
+@media (max-width: 860px) { .brand-mark { height: 58px; } }
