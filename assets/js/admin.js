@@ -47,6 +47,7 @@
   ];
   // CSS url() value; quotes/backslashes/newlines are percent-encoded so a link can't break out.
   const cssUrl = (u) => `url("${String(u).trim().replace(/["\\\n\r]/g, (ch) => encodeURIComponent(ch))}")`;
+  const expList = (a) => (Array.isArray(a.experience) ? a.experience : []);
   const countWords = (s) => (String(s || "").trim().match(/\S+/g) || []).length;
 
   let content = null;     // last saved content
@@ -185,7 +186,7 @@
       (a) =>
         (!com || a.choice_1 === com) &&
         (!lvl || a.language_level === lvl) &&
-        (!q || [a.full_name, a.email, a.phone, a.motivation].some((v) => String(v || "").toLowerCase().includes(q)))
+        (!q || [a.full_name, a.email, a.phone, a.motivation, JSON.stringify(expList(a))].some((v) => String(v || "").toLowerCase().includes(q)))
     );
   }
 
@@ -209,7 +210,7 @@
       <table class="atable">
         <thead><tr>
           <th>#</th><th>Submitted</th><th>Name</th><th>Contact</th><th>Level</th>
-          <th>1st</th><th>2nd</th><th>3rd</th><th>Letter</th><th></th>
+          <th>1st</th><th>2nd</th><th>3rd</th><th>Experience</th><th>Letter</th><th></th>
         </tr></thead>
         <tbody>
           ${list
@@ -224,12 +225,29 @@
               <td><span class="chip">${esc(a.choice_1 || "—")}</span></td>
               <td><span class="chip chip--2">${esc(a.choice_2 || "—")}</span></td>
               <td><span class="chip chip--3">${esc(a.choice_3 || "—")}</span></td>
+              <td>${
+                expList(a).length
+                  ? `<button class="linkbtn" data-toggle="${esc(a.id)}">${expList(a).length} conference${expList(a).length > 1 ? "s" : ""}</button>`
+                  : `<span class="muted">${a.no_experience ? "None" : "—"}</span>`
+              }</td>
               <td><button class="linkbtn" data-toggle="${esc(a.id)}">${countWords(a.motivation)} words ${openRow === a.id ? "▴" : "▾"}</button></td>
               <td><button class="iconbtn" data-delete="${esc(a.id)}" title="Delete application" aria-label="Delete application">✕</button></td>
             </tr>
             ${
               openRow === a.id
-                ? `<tr class="adetail"><td colspan="10"><div class="letterbox">${esc(a.motivation)}</div></td></tr>`
+                ? `<tr class="adetail"><td colspan="11">
+                    ${
+                      expList(a).length
+                        ? `<div class="expbox"><div class="expbox__title">MUN experience</div>${expList(a)
+                            .map(
+                              (x) => `<div class="expbox__row"><b>${esc(x.conference)}</b> <span class="muted">${esc(x.year || "")}</span>${
+                                x.award ? ` <span class="tag tag--advanced">${esc(x.award)}</span>` : ""
+                              }${x.details ? `<div class="muted">${esc(x.details)}</div>` : ""}</div>`
+                            )
+                            .join("")}</div>`
+                        : `<div class="expbox"><div class="expbox__title">MUN experience</div><span class="muted">${a.no_experience ? "No experience (first conference)" : "Not answered"}</span></div>`
+                    }
+                    <div class="letterbox">${esc(a.motivation)}</div></td></tr>`
                 : ""
             }`
             )
@@ -288,6 +306,9 @@
       "1st choice": a.choice_1 || "",
       "2nd choice": a.choice_2 || "",
       "3rd choice": a.choice_3 || "",
+      "MUN experience": expList(a).length
+        ? expList(a).map((x) => [`${x.conference} (${x.year || "?"})`, x.award, x.details].filter(Boolean).join(" · ")).join("\n")
+        : a.no_experience ? "None" : "",
       Words: countWords(a.motivation),
       "Motivation letter": a.motivation,
     }));
@@ -296,7 +317,7 @@
     try {
       const XLSX = await loadXlsx();
       const ws = XLSX.utils.json_to_sheet(rows);
-      ws["!cols"] = [6, 18, 24, 16, 28, 14, 10, 10, 10, 8, 80].map((w) => ({ wch: w }));
+      ws["!cols"] = [6, 18, 24, 16, 28, 14, 10, 10, 10, 50, 8, 80].map((w) => ({ wch: w }));
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Applications");
       XLSX.writeFile(wb, `tanmun-applications-${stamp}.xlsx`);
